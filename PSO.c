@@ -13,7 +13,7 @@ struct velocidade {
 struct particula {
     int *posicao, *pb;
     Velocidade velo;
-    float fitnessAtual, fitnessPb;
+    double fitnessAtual, fitnessPb;
 };
 
 
@@ -29,8 +29,8 @@ void liberaVetor(int **vetor, int n);
 void copiaVetor(int *v1, int *v2, int n);
 
 void inicializaPopulacao(Particula **particulas, int numParticulas, int **gb,
-float *fitnessGb, float **grafo, float c1, float c2, int numDimensoes);
-float calculaFitness(int *posicao, float **grafo, int numDimensoes);
+double *fitnessGb, double **grafo, double c1, double c2, int numDimensoes);
+double calculaFitness(int *posicao, double **grafo, int numDimensoes);
 
 //Operadores
 void alteraPosicao(int *posicao, Velocidade velo);
@@ -39,14 +39,14 @@ void subtraiPosicoes(int *p1, int *p2, int numDimensoes, Velocidade *velo);
 void somaVelocidades(Velocidade *velo1, Velocidade velo2);
 
 
-int* pso(float w, float c1, float c2, int numParticulas,
-        int maxItera, int numDimensoes, float **grafo, float *fitness) {
+int* pso(double w, double c1, double c2, int numParticulas,
+        int maxItera, int numDimensoes, double **grafo, double *fitness) {
 
     srand((unsigned)time(NULL));
 
     int i, j, *gb;
     Particula *particulas;
-    float r1, r2, fitnessGb = -1;
+    double r1, r2, fitnessGb = -1;
     Velocidade veloCognitiva, veloSocial;
 
     inicializaPopulacao(&particulas, numParticulas, &gb, &fitnessGb, grafo, c1, c2, numDimensoes);
@@ -55,8 +55,8 @@ int* pso(float w, float c1, float c2, int numParticulas,
 
         for(j = 0; j < numParticulas; ++j) {
 
-            r1 = ((float) (rand()%1000))/1000;
-            r2 = ((float) (rand()%1000))/1000;
+            r1 = ((double) (rand()%1000))/1000;
+            r2 = ((double) (rand()%1000))/1000;
 
             //Atualiza posição e fitness
             alteraPosicao(particulas[j].posicao, particulas[j].velo);
@@ -107,10 +107,10 @@ int* pso(float w, float c1, float c2, int numParticulas,
 
 
 void inicializaPopulacao(Particula **particulas, int numParticulas,
-                         int **gb, float *fitnessGb, float **grafo,
-                         float c1, float c2, int numDimensoes) {
+                         int **gb, double *fitnessGb, double **grafo,
+                         double c1, double c2, int numDimensoes) {
 
-    float r2;
+    double r2;
     int i, j, k;
 
     *gb = (int*) malloc(sizeof(int) * numDimensoes);
@@ -157,7 +157,7 @@ void inicializaPopulacao(Particula **particulas, int numParticulas,
     //Inicializa velocidade de cada partícula
     for(i = 0; i < numParticulas; ++i) {
 
-        r2 = ((float) (rand()%1000))/1000;
+        r2 = ((double) (rand()%1000))/1000;
         inicializaVelocidade(&((*particulas)[i].velo));
         subtraiPosicoes(*gb, (*particulas)[i].posicao, numDimensoes, &((*particulas)[i].velo));
         multiplicaVelocidade(&((*particulas)[i].velo), c2*r2);
@@ -247,10 +247,10 @@ void copiaVetor(int *v1, int *v2, int n) {
 }
 
 
-float calculaFitness(int *posicao, float **grafo, int numDimensoes) {
+double calculaFitness(int *posicao, double **grafo, int numDimensoes) {
 
     int i;
-    float custo = 0;
+    double custo = 0;
 
     for (i = 1; i < numDimensoes; ++i) {
         custo += grafo[posicao[i-1]][posicao[i]];

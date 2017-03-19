@@ -1,20 +1,21 @@
 #include "PSO.h"
-
+#include "tspReader.h"
 
 int menu();
 void pause();
-void carregaInstanciaTSP(float ***grafo, int *qtdCidades, char *nomeArquivo);
 
 
 int main() {
 
-    float w, c1, c2, **grafo, fitness;
-
+    double w, c1, c2, fitness;
+    double **grafo;
     int numParticulas, maxItera, numDimensoes,
         *resultado, i, numExecucoes, somatorioFitness, opcao;
-
     char nomeArquivo[100];
+    FILE *f;
+    TspInfo *tspInfo;
 
+    tspInfo = NULL;
     resultado = NULL;
     grafo = NULL;
     opcao = -1;
@@ -32,7 +33,11 @@ int main() {
 
     system("clear");
 
-    carregaInstanciaTSP(&grafo, &numDimensoes, nomeArquivo);
+    f = fopen(nomeArquivo, "r");
+    tspInfo = read(f);
+
+    grafo = tspInfo->distances;
+    numDimensoes = tspInfo->dimension;
 
     while (opcao != 4 || opcao == -1) {
 
@@ -76,16 +81,16 @@ int main() {
 
         case 2:
 
-            for (i = 0; i < numDimensoes; ++i) {
-                free(grafo[i]);
-            }
-            free(grafo);
-            grafo = NULL;
-
             printf("Informe o nome do novo arquivo de instancia (max 100): ");
             scanf("%s", nomeArquivo);
 
-            carregaInstanciaTSP(&grafo, &numDimensoes, nomeArquivo);
+            freeTspInfo(tspInfo);
+
+            f = fopen(nomeArquivo, "r");
+            tspInfo = read(f);
+
+            grafo = tspInfo->distances;
+            numDimensoes = tspInfo->dimension;
 
             system("clear");
 
@@ -127,7 +132,7 @@ int main() {
 }
 
 
-void carregaInstanciaTSP(float ***grafo, int *qtdCidades, char *nomeArquivo)
+void carregaInstanciaTSP(double ***grafo, int *qtdCidades, char *nomeArquivo)
 {
     int i, j;
     FILE *f;
@@ -140,14 +145,14 @@ void carregaInstanciaTSP(float ***grafo, int *qtdCidades, char *nomeArquivo)
 
     fscanf(f, "%d\n", qtdCidades);
 
-    *grafo = (float**) malloc((*qtdCidades) * sizeof(float*));
+    *grafo = (double**) malloc((*qtdCidades) * sizeof(double*));
     if(*grafo == NULL) {
         exit(1);
     }
 
     for(i = 0; i < *qtdCidades; ++i) {
 
-        (*grafo)[i] = (float*) malloc((*qtdCidades) * sizeof(float));
+        (*grafo)[i] = (double*) malloc((*qtdCidades) * sizeof(double));
 
         if((*grafo)[i] == NULL) {
             exit(1);
@@ -160,7 +165,7 @@ void carregaInstanciaTSP(float ***grafo, int *qtdCidades, char *nomeArquivo)
 
         for(j = i + 1; j < *qtdCidades; ++j) {
 
-            fscanf(f, "%f\n", &(*grafo)[i][j]);
+            fscanf(f, "%lf\n", &(*grafo)[i][j]);
             (*grafo)[j][i] = (*grafo)[i][j];
 
         }

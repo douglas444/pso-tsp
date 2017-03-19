@@ -2,6 +2,6 @@
 #include <stdlib.h>
 
 
-int* pso(float w, float c1, float c2,
+int* pso(double w, double c1, double c2,
           int numParticulas, int maxItera,
-          int numDimensoes, float **grafo, float *fitness);
+          int numDimensoes, double **grafo, double *fitness);
