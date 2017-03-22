@@ -31,10 +31,11 @@ int main() {
     printf("Informe o numero maximo de iteracoes: ");
     scanf("%d", &maxItera);
 
-    system("clear");
+    system("tput reset");
 
     f = fopen(nomeArquivo, "r");
     tspInfo = read(f);
+    fclose(f);
 
     grafo = tspInfo->distances;
     numDimensoes = tspInfo->dimension;
@@ -58,7 +59,7 @@ int main() {
             resultado = NULL;
 
             pause();
-            system("clear");
+            system("tput reset");
 
             break;
 
@@ -75,7 +76,7 @@ int main() {
 
             printf("Media fitness: %d\n", somatorioFitness/numExecucoes);
             pause();
-            system("clear");
+            system("tput reset");
 
             break;
 
@@ -92,7 +93,7 @@ int main() {
             grafo = tspInfo->distances;
             numDimensoes = tspInfo->dimension;
 
-            system("clear");
+            system("tput reset");
 
             break;
 
@@ -107,7 +108,7 @@ int main() {
             printf("Informe o numero de particulas: ");
             scanf("%d", &numParticulas);
 
-            system("clear");
+            system("tput reset");
 
             break;
 
@@ -118,61 +119,10 @@ int main() {
 
     }
 
-    if (grafo != NULL) {
-
-        for (i = 0; i < numDimensoes; ++i) {
-            free(grafo[i]);
-        }
-
-    }
-    free(grafo);
+    freeTspInfo(tspInfo);
 
     return 0;
 
-}
-
-
-void carregaInstanciaTSP(double ***grafo, int *qtdCidades, char *nomeArquivo)
-{
-    int i, j;
-    FILE *f;
-
-    f = fopen(nomeArquivo, "r");
-
-    if(f == NULL) {
-        exit(1);
-    }
-
-    fscanf(f, "%d\n", qtdCidades);
-
-    *grafo = (double**) malloc((*qtdCidades) * sizeof(double*));
-    if(*grafo == NULL) {
-        exit(1);
-    }
-
-    for(i = 0; i < *qtdCidades; ++i) {
-
-        (*grafo)[i] = (double*) malloc((*qtdCidades) * sizeof(double));
-
-        if((*grafo)[i] == NULL) {
-            exit(1);
-        }
-
-    }
-
-
-    for(i = 0; i < *qtdCidades - 1; ++i) {
-
-        for(j = i + 1; j < *qtdCidades; ++j) {
-
-            fscanf(f, "%lf\n", &(*grafo)[i][j]);
-            (*grafo)[j][i] = (*grafo)[i][j];
-
-        }
-
-    }
-
-    fclose(f);
 }
 
 
@@ -189,7 +139,7 @@ int menu() {
     printf("Opcao escolhida: ");
     scanf("%d", &opcao);
 
-    system("clear");
+    system("tput reset");
 
     return opcao;
 
