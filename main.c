@@ -7,9 +7,9 @@ void pause();
 
 int main() {
 
-    double w, c1, c2, fitness;
+    double w, c1, c2, fitness, melhorFitness;
     double **grafo;
-    int numParticulas, maxItera, numDimensoes,
+    int numParticulas, maxItera, numDimensoes, *melhorResultado,
         *resultado, i, numExecucoes, somatorioFitness, opcao;
     char nomeArquivo[100];
     FILE *f;
@@ -68,13 +68,32 @@ int main() {
             printf("Informe o numero de execucoes: ");
             scanf("%d", &numExecucoes);
 
+            melhorFitness = -1;
             somatorioFitness = 0;
+
             for (i = 0; i < numExecucoes; ++i) {
-                pso(w, c1, c2, numParticulas, maxItera, numDimensoes, grafo, &fitness);
+
+                resultado = pso(w, c1, c2, numParticulas, maxItera, numDimensoes, grafo, &fitness);
                 somatorioFitness += fitness;
+
+                if(fitness < melhorFitness || melhorFitness == -1){
+                    melhorFitness = fitness;
+                    melhorResultado = resultado;
+                }else{
+                    free(resultado);
+                    resultado = NULL;
+                }
             }
 
-            printf("Media fitness: %d\n", somatorioFitness/numExecucoes);
+            printf("Fitness da melhor solucao: %f\n\nRota da melhor solucao:\n\n", melhorFitness);
+            for (i = 0; i < numDimensoes; ++i) {
+                printf("%d\n", melhorResultado[i]);
+            }
+
+            printf("Media dos fitness de todas solucoes: %d\n", somatorioFitness/numExecucoes);
+
+            free(melhorResultado);
+
             pause();
             system("tput reset");
 
@@ -102,11 +121,11 @@ int main() {
             printf("Numero de iteracoes atual: %d\n", maxItera);
             printf("Numero de particulas atual: %d\n\n", numParticulas);
 
-            printf("Informe o numero maximo de iteracoes: ");
-            scanf("%d", &maxItera);
-
             printf("Informe o numero de particulas: ");
             scanf("%d", &numParticulas);
+
+            printf("Informe o numero maximo de iteracoes: ");
+            scanf("%d", &maxItera);
 
             system("tput reset");
 
