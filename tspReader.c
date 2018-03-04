@@ -122,7 +122,7 @@ TspInfo* read(FILE *file){
             if(strcmp("TYPE", keyword) == 0)
             {
 
-                tspInfo->type = (char*) malloc(sizeof(char) * strlen(value));
+                tspInfo->type = (char*) malloc(sizeof(char) * (strlen(value) + 1));
                 strcpy(tspInfo->type, value);
 
             }
@@ -135,21 +135,21 @@ TspInfo* read(FILE *file){
             else if(strcmp("EDGE_WEIGHT_FORMAT", keyword) == 0)
             {
 
-                tspInfo->edge_weight_format = (char*) malloc(sizeof(char) * strlen(value));
+                tspInfo->edge_weight_format = (char*) malloc(sizeof(char) * (strlen(value) + 1));
                 strcpy(tspInfo->edge_weight_format, value);
 
             }
             else if(strcmp("EDGE_WEIGHT_TYPE", keyword) == 0)
             {
 
-                tspInfo->edge_weight_type = (char*) malloc(sizeof(char) * strlen(value));
+                tspInfo->edge_weight_type = (char*) malloc(sizeof(char) * (strlen(value) + 1));
                 strcpy(tspInfo->edge_weight_type, value);
 
             }
             else if(strcmp("NAME", keyword) == 0)
             {
 
-                tspInfo->name = (char*) malloc(sizeof(char) * strlen(value));
+                tspInfo->name = (char*) malloc(sizeof(char) * (strlen(value) + 1));
                 strcpy(tspInfo->name, value);
 
             }
@@ -307,6 +307,8 @@ TspInfo* read(FILE *file){
             value = NULL;
         }
     }
+
+    free(line);
 
     return tspInfo;
 }

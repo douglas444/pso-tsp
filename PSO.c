@@ -34,7 +34,7 @@ double calculaFitness(int *posicao, double **grafo, int numDimensoes);
 
 //Operadores
 void alteraPosicao(int *posicao, Velocidade velo);
-void multiplicaVelocidade(Velocidade *velo, int escalar);
+void multiplicaVelocidade(Velocidade *velo, float escalar);
 void subtraiPosicoes(int *p1, int *p2, int numDimensoes, Velocidade *velo);
 void somaVelocidades(Velocidade *velo1, Velocidade velo2);
 
@@ -92,14 +92,14 @@ int* pso(double w, double c1, double c2, int numParticulas,
 
             liberaVetorSwaps(&veloCognitiva);
             liberaVetorSwaps(&veloSocial);
-
-
         }
     }
 
     for (i = 0; i < numParticulas; ++i) {
         liberaParticula(&(particulas[i]), numDimensoes);
     }
+
+    free(particulas);
 
     *fitness = fitnessGb;
     return gb;
@@ -131,7 +131,7 @@ void inicializaPopulacao(Particula **particulas, int numParticulas,
                 (*particulas)[i].posicao[j] = rand()%numDimensoes;
                 flag = 1;
 
-                for(k = 0; k < numDimensoes; ++k) {
+                for(k = 0; k < j; ++k) {
 
                     if((*particulas)[i].posicao[j] == (*particulas)[i].posicao[k] &&  j != k) {
                         flag = 0;
@@ -143,7 +143,6 @@ void inicializaPopulacao(Particula **particulas, int numParticulas,
 
         //Define fitness da posição atual e pb
         (*particulas)[i].fitnessAtual = calculaFitness((*particulas)[i].posicao, grafo, numDimensoes);
-        (*particulas)[i].pb = (int*) malloc(sizeof(int) * numDimensoes);
         (*particulas)[i].fitnessPb = (*particulas)[i].fitnessAtual;
         copiaVetor((*particulas)[i].pb, (*particulas)[i].posicao, numDimensoes);
 
@@ -158,7 +157,6 @@ void inicializaPopulacao(Particula **particulas, int numParticulas,
     for(i = 0; i < numParticulas; ++i) {
 
         r2 = ((double) (rand()%1000))/1000;
-        inicializaVelocidade(&((*particulas)[i].velo));
         subtraiPosicoes(*gb, (*particulas)[i].posicao, numDimensoes, &((*particulas)[i].velo));
         multiplicaVelocidade(&((*particulas)[i].velo), c2*r2);
 
@@ -190,7 +188,7 @@ void liberaParticula(Particula *p, int numDimensoes) {
 void inicializaVelocidade(Velocidade *v) {
 
     v->swaps = (int**) malloc(sizeof(int*));
-    v->swaps[0] = (int*) malloc(sizeof(int));
+    v->swaps[0] = (int*) malloc(sizeof(int) * 2);
     v->swaps[0][0] = -1;
     v->swaps[0][1] = -1;
     v->tamanho = 0;
@@ -201,7 +199,7 @@ void inicializaVelocidade(Velocidade *v) {
 void liberaVetorSwaps(Velocidade *v) {
 
     int i;
-    for (i = 0; i < v->tamanho; ++i) {
+    for (i = 0; i <= v->tamanho; ++i) {
         free(v->swaps[i]);
     }
     free(v->swaps);
@@ -232,6 +230,8 @@ void insereSwap(Velocidade *v, int *swap) {
     novoSwaps[i+1][0] = -1;
     novoSwaps[i+1][1] = -1;
 
+
+
     v->swaps = novoSwaps;
     v->tamanho = tamanhoVelocidade + 1;
 }
@@ -255,6 +255,9 @@ double calculaFitness(int *posicao, double **grafo, int numDimensoes) {
     for (i = 1; i < numDimensoes; ++i) {
         custo += grafo[posicao[i-1]][posicao[i]];
     }
+
+    custo += grafo[posicao[0]][posicao[numDimensoes - 1]];
+
     return custo;
 
 }
@@ -273,8 +276,7 @@ void alteraPosicao(int *posicao, Velocidade velo) {
 
 }
 
-
-void multiplicaVelocidade(Velocidade *velo, int escalar) {
+void multiplicaVelocidade(Velocidade *velo, float escalar) {
 
     int i;
     Velocidade *novaVelo, veloTruncada;
@@ -292,17 +294,19 @@ void multiplicaVelocidade(Velocidade *velo, int escalar) {
 
         inicializaVelocidade(&veloTruncada);
 
-        for (i = 0; i < (int)(velo->tamanho/(escalar - (int)escalar)); ++i) {
+        for (i = 0; i < (int)(velo->tamanho * (escalar - (int)escalar)); ++i) {
             insereSwap(&veloTruncada, velo->swaps[i]);
         }
 
         somaVelocidades(novaVelo, veloTruncada);
+        liberaVetorSwaps(&veloTruncada);
 
     }
 
     liberaVetorSwaps(velo);
     velo->swaps = novaVelo->swaps;
     velo->tamanho = novaVelo->tamanho;
+    free(novaVelo);
 
 }
 
@@ -310,19 +314,30 @@ void multiplicaVelocidade(Velocidade *velo, int escalar) {
 void subtraiPosicoes(int *p1, int *p2, int numDimensoes, Velocidade *velo) {
 
     int i, j, swap[2];
+    int *p3 = (int*) malloc(sizeof(int) * numDimensoes);
+    Velocidade velocidadeAux;
+    copiaVetor(p3, p2, numDimensoes);
 
     liberaVetorSwaps(velo);
     inicializaVelocidade(velo);
 
-    for (i = 0; i < numDimensoes; ++i) {
-        for(j = 0; j < numDimensoes; ++j) {
-            if (p1[i] == p2[j] && i != j) {
-                swap[0] = i;
-                swap[1] = j;
-                insereSwap(velo, swap);
+    for (i = 0; i < numDimensoes - 1; ++i) {
+        if (p3[i] != p1[i]) {
+            j = i + 1;
+            while (p3[j] != p1[i]) {
+                ++j;
             }
+            swap[0] = i;
+            swap[1] = j;
+            insereSwap(velo, swap);
+            inicializaVelocidade(&velocidadeAux);
+            insereSwap(&velocidadeAux, swap);
+            alteraPosicao(p3, velocidadeAux);
+            liberaVetorSwaps(&velocidadeAux);
         }
     }
+
+    free(p3);
 }
 
 

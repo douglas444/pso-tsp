@@ -20,9 +20,9 @@ int main() {
     grafo = NULL;
     opcao = -1;
 
-    w = 0.5;
-    c1 = 2.1;//cognitivo
-    c2 = 2.1;//social
+    w = 1;
+    c1 = 2;//cognitivo
+    c2 = 2;//social
 
     printf("Informe o nome do arquivo de instancia (max 100): ");
     scanf("%s", nomeArquivo);
@@ -139,6 +139,8 @@ int main() {
     }
 
     freeTspInfo(tspInfo);
+    free(tspInfo);
+
 
     return 0;
 
