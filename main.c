@@ -1,5 +1,6 @@
 #include "PSO.h"
 #include "tspReader.h"
+#include <time.h>
 
 int menu();
 void pause();
@@ -20,9 +21,9 @@ int main() {
     grafo = NULL;
     opcao = -1;
 
-    w = 1;
-    c1 = 2;//cognitivo
-    c2 = 2;//social
+    w = 0.2;
+    c1 = 3;//cognitivo
+    c2 = 3;//social
 
     printf("Informe o nome do arquivo de instancia (max 100): ");
     scanf("%s", nomeArquivo);
@@ -71,6 +72,9 @@ int main() {
             melhorFitness = -1;
             somatorioFitness = 0;
 
+            clock_t t0;
+            int tempo;
+            t0 = clock();
             for (i = 0; i < numExecucoes; ++i) {
 
                 resultado = pso(w, c1, c2, numParticulas, maxItera, numDimensoes, grafo, &fitness);
@@ -84,13 +88,15 @@ int main() {
                     resultado = NULL;
                 }
             }
+            tempo = (clock() - t0)/(double)CLOCKS_PER_SEC;
+            printf("Media tempo: %f\n\n", (double)tempo/numExecucoes);
 
             printf("Fitness da melhor solucao: %f\n\nRota da melhor solucao:\n\n", melhorFitness);
             for (i = 0; i < numDimensoes; ++i) {
                 printf("%d\n", melhorResultado[i]);
             }
 
-            printf("Media dos fitness de todas solucoes: %d\n", somatorioFitness/numExecucoes);
+            printf("Media dos fitness de todas solucoes: %f\n", (double) somatorioFitness / numExecucoes);
 
             free(melhorResultado);
 
